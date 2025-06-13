@@ -1,8 +1,8 @@
-C                 ******************************
+C                 *******************************
 C                      I L L U S T R A T E
 C                   Biomolecular Illustration
-C		  ******************************
-C		  copyright 2019 David S Goodsell
+C		          *******************************
+C		          copyright 2019 David S Goodsell
 C
 C Licensed under the Apache License, Version 2.0 (the "License");  
 C you may not use this file except in compliance with the License.

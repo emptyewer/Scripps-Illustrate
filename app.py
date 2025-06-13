@@ -72,30 +72,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Standard pastel colors for atoms (hex values)
-ATOM_COLORS = {
-    'C': '#A0A0A0',  # Pastel gray for carbon
-    'N': '#A0A0FF',  # Pastel blue for nitrogen
-    'O': '#FFA0A0',  # Pastel red for oxygen
-    'S': '#FFFFA0',  # Pastel yellow for sulfur
-    'P': '#A0FFA0',  # Pastel green for phosphorus
-    'H': '#FFFFFF',  # White for hydrogen
-    'F': '#A0FFFF',  # Pastel cyan for fluorine
-    'Cl': '#A0FFA0',  # Pastel green for chlorine
-    'Br': '#FFA0A0',  # Pastel red for bromine
-    'I': '#FFA0FF',  # Pastel purple for iodine
-    'Na': '#A0A0FF',  # Pastel blue for sodium
-    'K': '#A0A0FF',  # Pastel blue for potassium
-    'Ca': '#A0A0FF',  # Pastel blue for calcium
-    'Mg': '#A0A0FF',  # Pastel blue for magnesium
-    'Fe': '#FFA0A0',  # Pastel red for iron
-    'Zn': '#A0A0A0',  # Pastel gray for zinc
-    'Cu': '#FFA0A0',  # Pastel red for copper
-    'Mn': '#A0A0A0',  # Pastel gray for manganese
-    'Co': '#A0A0A0',  # Pastel gray for cobalt
-    'Ni': '#A0A0A0',  # Pastel gray for nickel
-}
-
 # Standard atomic radii in angstroms (based on covalent radii)
 ATOM_SIZES = {
     'C': 1.6,    # Carbon
@@ -134,17 +110,17 @@ PASTEL_PALETTES = {
 
 # Base colors for C atoms in each chain
 CHAIN_BASE_COLORS = {
-    'A': '#FFB3BA',  # Soft pink
-    'B': '#BAE1FF',  # Soft blue
-    'C': '#BAFFC9',  # Soft mint
-    'D': '#FFD3B6',  # Soft peach
-    'E': '#E2F0CB',  # Soft lime
-    'F': '#C7CEEA',  # Soft periwinkle
-    'G': '#FFB3FF',  # Soft lavender
-    'H': '#FFFFBA',  # Soft yellow
+    'A': '#FF9AA2',  # Rose (modern pastel)
+    'B': '#A2D2FF',  # Sky blue
+    'C': '#B5E48C',  # Mint green
+    'D': '#FFD6A5',  # Peach
+    'E': '#FDFFB6',  # Butter yellow
+    'F': '#D0BFFF',  # Lavender purple
+    'G': '#FFC6FF',  # Pink lavender
+    'H': '#BDE0FE',  # Baby blue
 }
 
-def create_selection_cards(selected_chains, selected_hetatm, chain_atoms, atom_colors, atom_sizes):
+def create_selection_cards(selected_chains, selected_hetatm, chain_atoms, atom_colors, atom_sizes, chain_residues):
     """Create selection/rendering cards based on user selections."""
     cards = []
     
@@ -182,39 +158,55 @@ def create_selection_cards(selected_chains, selected_hetatm, chain_atoms, atom_c
             # Group HETATM atoms by residue
             hetatm_by_residue = {}
             for atom in sorted(chain_atoms[chain]['HETATM']):
-                # Check if this HETATM type is selected
-                if st.session_state.get(f"chain_{chain}_hetatm_type_{atom}", False):
-                    hetatm_res = atom.split('---')[1] if '---' in atom else ''
-                    if hetatm_res not in hetatm_by_residue:
-                        hetatm_by_residue[hetatm_res] = []
-                    hetatm_by_residue[hetatm_res].append(atom)
+                hetatm_res = atom.split('---')[1] if '---' in atom else ''
+                if hetatm_res not in hetatm_by_residue:
+                    hetatm_by_residue[hetatm_res] = []
+                hetatm_by_residue[hetatm_res].append(atom)
             
-            # Process each residue's atoms
-            for res_name, atoms in hetatm_by_residue.items():
-                # Group atoms by their first character (element type)
-                atoms_by_element = {}
-                for atom in atoms:
-                    element = atom[0]  # First character is the element
-                    if element not in atoms_by_element:
-                        atoms_by_element[element] = []
-                    atoms_by_element[element].append(atom)
-                
-                # Process each element type's atoms
-                for element, element_atoms in atoms_by_element.items():
-                    for atom in element_atoms:
-                        color = atom_colors.get(f"chain_{chain}_hetatm_color_{atom}", "#808080")
-                        r, g, b = hex_to_rgb(color)
-                        size = atom_sizes.get(f"chain_{chain}_hetatm_size_{atom}", "1.5")
-                        # Use dashes as wildcards while maintaining exact atom and residue names
-                        atom_name = atom.split('---')[0] if '---' in atom else atom
-                        # Pad with dashes to maintain wildcard matching
-                        atom_desc = f"-{element}---{res_name}-{chain}"
-                        cards.append(f"HETATM{atom_desc} 0,9999, {r},{g},{b}, {size}")
-    
+            # Create columns for residues
+            hetatm_cols = st.columns(min(4, len(hetatm_by_residue)))
+            for i, (res_name, atoms) in enumerate(sorted(hetatm_by_residue.items())):
+                with hetatm_cols[i % 4]:
+                    # Use the first atom as the representative for the residue
+                    first_atom = atoms[0]
+                    # Create a unique key by combining chain, residue name, and atom
+                    unique_key = f"chain_{chain}_hetatm_type_{res_name}_{first_atom}"
+                    is_selected = st.checkbox(f"{res_name}", key=unique_key)
+                    # Replace nested columns with container and custom CSS
+                    st.markdown("""
+                        <style>
+                        .color-picker-container {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                    
+                    with st.container():
+                        st.markdown('<div class="color-picker-container">', unsafe_allow_html=True)
+                        # Use chain-specific color scheme for HETATM as well
+                        default_color = get_atom_color(chain, first_atom) if is_selected else '#000000'
+                        color = st.color_picker("Color", default_color, key=f"chain_{chain}_hetatm_color_{res_name}_{first_atom}", label_visibility="collapsed")
+                        if color:
+                            r, g, b = hex_to_rgb(color)
+                            st.markdown(f'<div class="rgb-value">{r}, {g}, {b}</div>', unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    # Add size input in angstroms with default value
+                    default_size = ATOM_SIZES.get(first_atom, 1.0) if is_selected else 1.0
+                    size = st.number_input(
+                        "Size (Å)",
+                        min_value=0.1,
+                        max_value=10.0,
+                        value=default_size,
+                        step=0.1,
+                        key=f"chain_{chain}_hetatm_size_{res_name}_{first_atom}",
+                        disabled=not is_selected
+                    )
     return cards
 
-def create_input_file(pdb_file, selected_chains, selected_hetatm, chain_atoms, atom_colors, atom_sizes,
-                     center_type, translation, scale, rotation, world_params, illustration_params, output_file):
+def create_input_file(pdb_file, selected_chains, selected_hetatm, chain_atoms, atom_colors, atom_sizes, center_type, translation, scale, x_rotation, y_rotation, z_rotation, world_params, illustration_params, output_file, chain_residues):
     """Create the input file for ILLUSTRATE program."""
     content = []
     
@@ -223,7 +215,7 @@ def create_input_file(pdb_file, selected_chains, selected_hetatm, chain_atoms, a
     content.append(pdb_file)
     
     # Add selection/rendering cards
-    selection_cards = create_selection_cards(selected_chains, selected_hetatm, chain_atoms, atom_colors, atom_sizes)
+    selection_cards = create_selection_cards(selected_chains, selected_hetatm, chain_atoms, atom_colors, atom_sizes, chain_residues)
     content.extend(selection_cards)
     content.append("END")
     
@@ -240,8 +232,12 @@ def create_input_file(pdb_file, selected_chains, selected_hetatm, chain_atoms, a
     content.append(str(scale))
     
     # ROTATION command
+    content.append("xrot")
+    content.append(str(x_rotation))
+    content.append("yrot")
+    content.append(str(y_rotation))
     content.append("zrot")
-    content.append(str(rotation))
+    content.append(str(z_rotation))
     
     # WORLD command
     content.append("wor")
@@ -337,12 +333,8 @@ def get_unique_atoms(atom_lines, selected_chains, selected_hetatm):
                     # Only include HETATM atoms if their residue is selected
                     if res_name in selected_hetatm:
                         # Create a more specific atom identifier including the residue name
-                        atom_id = f"{element}---{res_name}--"
-                        if element in common_elements:
-                            atom_types['HETATM'].add(atom_id)
-                        else:
-                            atom_types['HETATM'].add(atom_id)
-    
+                        if element not in common_elements:
+                            atom_types['HETATM'].add(f"{atom_name}")
     return atom_types
 
 def get_output_filename(pdb_filename):
@@ -447,6 +439,24 @@ def generate_preview(input_file, pdb_file):
         st.error(f"Unexpected error during preview generation: {str(e)}")
         return None
 
+def get_chain_residues(atom_lines, selected_chains):
+    """Get residues for each selected chain from ATOM and HETATM lines."""
+    chain_residues = defaultdict(set)
+    
+    for line in atom_lines:
+        if len(line) >= 22:  # Ensure line is long enough to contain chain ID
+            chain_id = line[21]
+            if chain_id in selected_chains:
+                # Extract residue name and number
+                res_name = line[17:20].strip()
+                res_num = line[22:26].strip()
+                if res_name and res_num:
+                    chain_residues[chain_id].add((res_name, res_num))
+    st.info(chain_residues)
+    # Print the data structure to the console for debugging purposes
+    print("[DEBUG] chain_residues:", dict(chain_residues))
+    return chain_residues
+
 def main():
     st.title("ILLUSTRATE Input File Generator")
     st.write("Generate input files for the ILLUSTRATE molecular visualization program")
@@ -461,6 +471,7 @@ def main():
 
     # Initialize variables to prevent UnboundLocalError
     chain_atoms = {}
+    chain_residues = {}
     selected_chains = []
     selected_hetatm = set()
     atom_lines = []
@@ -542,24 +553,26 @@ def main():
                         return
                         
                     chain_atoms = {}
+                    chain_residues = get_chain_residues(atom_lines, selected_chains)
                     for chain in selected_chains:
                         chain_atoms[chain] = get_unique_atoms(atom_lines, [chain], selected_hetatm)
                     
                     input_content = create_input_file(
                         st.session_state.pdb_file, selected_chains, selected_hetatm, chain_atoms,
                         st.session_state, st.session_state,  # For atom_colors and atom_sizes
-                        center_type, translation, scale, rotation,
-                        world_params, illustration_params, st.session_state.output_file
+                        center_type, translation, scale, x_rotation, y_rotation, z_rotation,
+                        world_params, illustration_params, st.session_state.output_file, chain_residues
                     )
                     
-                    # Save the file
+                    # Save the input file
                     try:
-                        with open(st.session_state.output_file, "w") as f:
+                        input_file_path = st.session_state.output_file.replace('.ppm', '.inp')
+                        with open(input_file_path, "w") as f:
                             f.write(input_content)
-                        st.success("Input file generated successfully!")
-                        st.text_area("Generated Input File", input_content, height=400)
+                        # st.info(f"Input file saved as: {os.path.abspath(input_file_path)}")
                     except IOError as e:
                         st.error(f"Failed to save input file: {str(e)}")
+                    return
         
         with tab2:
             st.subheader("2. Coloring and Size Scheme")
@@ -617,10 +630,23 @@ def main():
                         
                         if chain_atoms[chain]['HETATM'] and selected_hetatm:
                             with st.expander(f"HETATM Types", expanded=False):
-                                hetatm_cols = st.columns(min(4, len(chain_atoms[chain]['HETATM'])))
-                                for i, atom in enumerate(sorted(chain_atoms[chain]['HETATM'])):
+                                # Group HETATM atoms by residue
+                                hetatm_by_residue = {}
+                                for atom in sorted(chain_atoms[chain]['HETATM']):
+                                    hetatm_res = atom.split('---')[1] if '---' in atom else ''
+                                    if hetatm_res not in hetatm_by_residue:
+                                        hetatm_by_residue[hetatm_res] = []
+                                    hetatm_by_residue[hetatm_res].append(atom)
+                                
+                                # Create columns for residues
+                                hetatm_cols = st.columns(min(4, len(hetatm_by_residue)))
+                                for i, (res_name, atoms) in enumerate(sorted(hetatm_by_residue.items())):
                                     with hetatm_cols[i % 4]:
-                                        is_selected = st.checkbox(f"{atom}", key=f"chain_{chain}_hetatm_type_{atom}")
+                                        # Use the first atom as the representative for the residue
+                                        first_atom = atoms[0]
+                                        # Create a unique key by combining chain, residue name, and atom
+                                        unique_key = f"chain_{chain}_hetatm_type_{res_name}_{first_atom}"
+                                        is_selected = st.checkbox(f"{res_name}", key=unique_key)
                                         # Replace nested columns with container and custom CSS
                                         st.markdown("""
                                             <style>
@@ -635,22 +661,22 @@ def main():
                                         with st.container():
                                             st.markdown('<div class="color-picker-container">', unsafe_allow_html=True)
                                             # Use chain-specific color scheme for HETATM as well
-                                            default_color = get_atom_color(chain, atom) if is_selected else '#000000'
-                                            color = st.color_picker("Color", default_color, key=f"chain_{chain}_hetatm_color_{atom}", label_visibility="collapsed")
+                                            default_color = get_atom_color(chain, first_atom) if is_selected else '#000000'
+                                            color = st.color_picker("Color", default_color, key=f"chain_{chain}_hetatm_color_{res_name}_{first_atom}", label_visibility="collapsed")
                                             if color:
                                                 r, g, b = hex_to_rgb(color)
                                                 st.markdown(f'<div class="rgb-value">{r}, {g}, {b}</div>', unsafe_allow_html=True)
                                             st.markdown('</div>', unsafe_allow_html=True)
                                         
                                         # Add size input in angstroms with default value
-                                        default_size = ATOM_SIZES.get(atom, 1.0) if is_selected else 1.0
+                                        default_size = ATOM_SIZES.get(first_atom, 1.0) if is_selected else 1.0
                                         size = st.number_input(
                                             "Size (Å)",
                                             min_value=0.1,
                                             max_value=10.0,
                                             value=default_size,
                                             step=0.1,
-                                            key=f"chain_{chain}_hetatm_size_{atom}",
+                                            key=f"chain_{chain}_hetatm_size_{res_name}_{first_atom}",
                                             disabled=not is_selected
                                         )
         
@@ -674,7 +700,9 @@ def main():
                 with col1:
                     scale = st.number_input("Scale Factor", value=12.0, step=1.0)
                 with col2:
-                    rotation = st.number_input("Z Rotation (degrees)", value=90.0, step=1.0)
+                    x_rotation = st.number_input("X Rotation (degrees)", value=0.0, step=1.0)
+                    y_rotation = st.number_input("Y Rotation (degrees)", value=0.0, step=1.0)
+                    z_rotation = st.number_input("Z Rotation (degrees)", value=90.0, step=1.0)
             
             with st.expander("World Parameters", expanded=False):
                 col1, col2 = st.columns(2)
@@ -741,44 +769,49 @@ def main():
                 f"{residue_low},{residue_high},{residue_diff}"
             ]
         
-    # Add Preview button outside of tabs
-    if st.button("Preview", type="primary"):
+    # Add the new tab content for showing generated input
+    with tab4:
+        st.subheader("Generated Input File")
         if uploaded_file is not None and st.session_state.pdb_file and st.session_state.output_file:
             try:
-                # Generate the input file content first
+                # Generate the input file content
                 if not chain_atoms and atom_lines and selected_chains:
+                    chain_residues = get_chain_residues(atom_lines, selected_chains)
                     for chain in selected_chains:
                         chain_atoms[chain] = get_unique_atoms(atom_lines, [chain], selected_hetatm)
 
                 input_content = create_input_file(
                     st.session_state.pdb_file, selected_chains, selected_hetatm, chain_atoms,
                     st.session_state, st.session_state,  # For atom_colors and atom_sizes
-                    center_type, translation, scale, rotation,
-                    world_params, illustration_params, st.session_state.output_file
+                    center_type, translation, scale, x_rotation, y_rotation, z_rotation,
+                    world_params, illustration_params, st.session_state.output_file, chain_residues
                 )
                 
-                # Save the input file
-                try:
-                    with open(st.session_state.output_file, "w") as f:
-                        f.write(input_content)
-                except IOError as e:
-                    st.error(f"Failed to save input file: {str(e)}")
-                    return
+                # Display the generated input file in a text area
+                st.text_area(
+                    "ILLUSTRATE Input File",
+                    value=input_content,
+                    height=400,
+                    help="This is the generated input file that will be used by ILLUSTRATE",
+                    key="generated_input_area"
+                )
                 
-                # Generate preview
-                with st.spinner("Generating preview..."):
-                    preview_image = generate_preview(st.session_state.output_file, st.session_state.pdb_file)
-                    if preview_image:
-                        st.session_state.preview_image = preview_image
-                        st.success("Preview generated successfully!")
-                    else:
-                        st.session_state.preview_image = None
+                # Create two columns for the buttons
+                col1, col2 = st.columns([1, 1])
+                
+                # Add download button in the left column
+                with col1:
+                    st.download_button(
+                        label="Download Input File",
+                        data=input_content,
+                        file_name=st.session_state.output_file,
+                        mime="text/plain"
+                    )
             except Exception as e:
-                st.error(f"An unexpected error occurred: {str(e)}")
-                st.session_state.preview_image = None
+                st.error(f"Error generating input file: {str(e)}")
         else:
-            st.warning("Please upload a PDB file first")
-    
+            st.info("Upload a PDB file to see the generated input file")
+
     with preview_col:
         # Initialize session state for preview image if not exists
         if 'preview_image' not in st.session_state:
@@ -797,14 +830,20 @@ def main():
                 margin: 100px 100px;
             }
             div[data-testid="stImage"] img {
-                width: 600px !important;
+                width: 400px !important;
                 max-width: 100% !important;
                 height: auto !important;
             }
             div[data-testid="stImageCaption"] {
-                width: 600px !important;
+                width: 400px !important;
                 max-width: 100% !important;
                 text-align: center !important;
+            }
+            div[data-testid="stButton"] {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 20px 0;
             }
             </style>
         """, unsafe_allow_html=True)
@@ -814,48 +853,32 @@ def main():
             st.image(st.session_state.preview_image, 
                     caption="Molecular Structure Preview",
                     width=600)
-        else:
+        elif not st.session_state.preview_image:
             st.info("Upload a PDB file and click Preview to generate the molecular structure visualization")
-                
-
-
-    # Add the new tab content for showing generated input
-    with tab4:
-        st.subheader("Generated Input File")
-        if uploaded_file is not None and st.session_state.pdb_file and st.session_state.output_file:
+        
+        # Add Preview button below the image
+        st.markdown('<div style="display: flex; justify-content: center;">', unsafe_allow_html=True)
+        if st.button("Preview", type="primary", key="preview_button_preview_panel"):
             try:
-                # Generate the input file content
-                if not chain_atoms and atom_lines and selected_chains:
-                    for chain in selected_chains:
-                        chain_atoms[chain] = get_unique_atoms(atom_lines, [chain], selected_hetatm)
-
-                input_content = create_input_file(
-                    st.session_state.pdb_file, selected_chains, selected_hetatm, chain_atoms,
-                    st.session_state, st.session_state,  # For atom_colors and atom_sizes
-                    center_type, translation, scale, rotation,
-                    world_params, illustration_params, st.session_state.output_file
-                )
+                # Save the input file
+                input_file_path = st.session_state.output_file.replace('.ppm', '.inp')
+                with open(input_file_path, "w") as f:
+                    f.write(input_content)
+                # st.info(f"Input file saved as: {os.path.abspath(input_file_path)}")
                 
-                # Display the generated input file in a text area
-                st.text_area(
-                    "ILLUSTRATE Input File",
-                    value=input_content,
-                    height=400,
-                    help="This is the generated input file that will be used by ILLUSTRATE",
-                    key="generated_input_area"
-                )
-                
-                # Add a download button for the input file
-                st.download_button(
-                    label="Download Input File",
-                    data=input_content,
-                    file_name=st.session_state.output_file,
-                    mime="text/plain"
-                )
+                # Generate preview
+                with st.spinner("Generating preview..."):
+                    preview_image = generate_preview(input_file_path, st.session_state.pdb_file)
+                    if preview_image:
+                        st.session_state.preview_image = preview_image
+                        # st.success("Preview generated successfully!")
+                        # st.info(f"Output PNG path: {os.path.abspath(preview_image)}")
+                    else:
+                        st.session_state.preview_image = None
             except Exception as e:
-                st.error(f"Error generating input file: {str(e)}")
-        else:
-            st.info("Upload a PDB file to see the generated input file")
+                st.error(f"An unexpected error occurred: {str(e)}")
+                st.session_state.preview_image = None
+        st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main() 

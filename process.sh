@@ -35,6 +35,9 @@ fi
 # Convert the output to PNG with transparency
 magick ${output_ppm} opacity.pnm -compose copy-opacity -composite ${output_png}
 
+echo $output_ppm
+echo $output_png
+
 # Clean up temporary files
 rm -f opacity.pnm
 rm -f ${output_ppm}
