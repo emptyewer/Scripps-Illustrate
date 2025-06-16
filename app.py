@@ -96,29 +96,53 @@ ATOM_SIZES = {
     'Ni': 1.2,   # Nickel
 }
 
-# Add pastel color palettes for different chains
-PASTEL_PALETTES = {
-    'A': ['#FFB3BA', '#BAFFC9', '#BAE1FF', '#FFFFBA', '#FFB3FF'],  # Soft pink, mint, blue, yellow, lavender
-    'B': ['#FFD3B6', '#DCEDC1', '#B5EAD7', '#C7CEEA', '#E2F0CB'],  # Peach, sage, aqua, periwinkle, lime
-    'C': ['#F8B195', '#F67280', '#C06C84', '#6C5B7B', '#355C7D'],  # Coral, rose, mauve, purple, navy
-    'D': ['#A8E6CF', '#DCEDC1', '#FFD3B6', '#FFAAA5', '#FF8B94'],  # Mint, sage, peach, salmon, pink
-    'E': ['#B5EAD7', '#C7CEEA', '#E2F0CB', '#FFDAC1', '#FFB7B2'],  # Aqua, periwinkle, lime, peach, coral
-    'F': ['#FFB3BA', '#BAFFC9', '#BAE1FF', '#FFFFBA', '#FFB3FF'],  # Soft pink, mint, blue, yellow, lavender
-    'G': ['#FFD3B6', '#DCEDC1', '#B5EAD7', '#C7CEEA', '#E2F0CB'],  # Peach, sage, aqua, periwinkle, lime
-    'H': ['#F8B195', '#F67280', '#C06C84', '#6C5B7B', '#355C7D'],  # Coral, rose, mauve, purple, navy
+# Color palettes for chain base colors
+MODERN_PASTELS = { 'A': '#FFB3BA', 'B': '#BAFFC9', 'C': '#BAE1FF', 'D': '#FFFFBA', 'E': '#FFB3FF', 'F': '#B5EAD7', 'G': '#C7CEEA', 'H': '#E2F0CB' }
+EARTH_TONES = { 'A': '#A68A64', 'B': '#C2B280', 'C': '#8C6A4A', 'D': '#BFAE99', 'E': '#A3A380', 'F': '#D6C6B9', 'G': '#B7A196', 'H': '#7D7461' }
+OCEAN_BREEZE = { 'A': '#00B4D8', 'B': '#90E0EF', 'C': '#48CAE4', 'D': '#ADE8F4', 'E': '#0077B6', 'F': '#0096C7', 'G': '#023E8A', 'H': '#CAF0F8' }
+SUNSET_VIBES = { 'A': '#FF9E00', 'B': '#FF6B6B', 'C': '#4ECDC4', 'D': '#FFE66D', 'E': '#FF6B6B', 'F': '#FF9E00', 'G': '#4ECDC4', 'H': '#FFE66D' }
+FOREST_DREAM = { 'A': '#386641', 'B': '#6A994E', 'C': '#A7C957', 'D': '#F2E8CF', 'E': '#BC4749', 'F': '#386641', 'G': '#6A994E', 'H': '#A7C957' }
+NEON_NIGHTS = { 'A': '#FF61D2', 'B': '#FEFF86', 'C': '#4831D4', 'D': '#3D155F', 'E': '#00FF9F', 'F': '#FF00FF', 'G': '#00FFFF', 'H': '#FF6B6B' }
+DESERT_SUNSET = { 'A': '#FFB997', 'B': '#F67E7D', 'C': '#843B62', 'D': '#621940', 'E': '#211A1D', 'F': '#F67E7D', 'G': '#FFB997', 'H': '#843B62' }
+ARCTIC_FROST = { 'A': '#E2ECE9', 'B': '#BEE1E6', 'C': '#CDD6DD', 'D': '#BEE1E6', 'E': '#E2ECE9', 'F': '#CDD6DD', 'G': '#BEE1E6', 'H': '#E2ECE9' }
+MIDNIGHT_OCEAN = { 'A': '#0A2463', 'B': '#3E92CC', 'C': '#2A628F', 'D': '#18435A', 'E': '#0A2463', 'F': '#3E92CC', 'G': '#2A628F', 'H': '#18435A' }
+AUTUMN_BREEZE = { 'A': '#D4A373', 'B': '#FEFAE0', 'C': '#E9EDC9', 'D': '#CCD5AE', 'E': '#D4A373', 'F': '#FEFAE0', 'G': '#E9EDC9', 'H': '#CCD5AE' }
+SPRING_BLOOM = { 'A': '#F6D6AD', 'B': '#F6B8B8', 'C': '#F6D6AD', 'D': '#B8F6B8', 'E': '#B8D6F6', 'F': '#D6B8F6', 'G': '#F6B8D6', 'H': '#B8F6D6' }
+DUSK_VIBES = { 'A': '#2D3047', 'B': '#419D78', 'C': '#E0A458', 'D': '#C04CFD', 'E': '#2D3047', 'F': '#419D78', 'G': '#E0A458', 'H': '#C04CFD' }
+WINTER_MINT = { 'A': '#A3F7BF', 'B': '#25CED1', 'C': '#FFA400', 'D': '#FF6363', 'E': '#F8E9A1', 'F': '#A3F7BF', 'G': '#25CED1', 'H': '#FFA400' }
+SUMMER_DAYS = { 'A': '#F7B32B', 'B': '#F72C25', 'C': '#2D1E2F', 'D': '#F7B32B', 'E': '#F72C25', 'F': '#2D1E2F', 'G': '#F7B32B', 'H': '#F72C25' }
+BOLD_RETRO = { 'A': '#F94144', 'B': '#F3722C', 'C': '#F8961E', 'D': '#F9844A', 'E': '#F9C74F', 'F': '#90BE6D', 'G': '#43AA8B', 'H': '#577590' }
+CYBER_PUNK = { 'A': '#FF0054', 'B': '#00F6ED', 'C': '#A100FF', 'D': '#F5F5F5', 'E': '#FF0054', 'F': '#00F6ED', 'G': '#A100FF', 'H': '#F5F5F5' }
+VINTAGE_BOOKS = { 'A': '#D8C3A5', 'B': '#EAE7DC', 'C': '#8E8D8A', 'D': '#E98074', 'E': '#E85A4F', 'F': '#D8C3A5', 'G': '#EAE7DC', 'H': '#8E8D8A' }
+TROPICAL_FRUIT = { 'A': '#FFB347', 'B': '#FF6961', 'C': '#77DD77', 'D': '#AEC6CF', 'E': '#CFCFC4', 'F': '#B39EB5', 'G': '#FFB347', 'H': '#FF6961' }
+MONOCHROME_TEAL = { 'A': '#003B36', 'B': '#005F56', 'C': '#008C7A', 'D': '#00BFAE', 'E': '#00E6C3', 'F': '#00FFDD', 'G': '#00FFF7', 'H': '#00FFF7' }
+LAVENDER_FIELDS = { 'A': '#B497BD', 'B': '#8E7DBE', 'C': '#6C5B7B', 'D': '#355C7D', 'E': '#B497BD', 'F': '#8E7DBE', 'G': '#6C5B7B', 'H': '#355C7D' }
+
+AVAILABLE_PALETTES = {
+    'Modern Pastels': MODERN_PASTELS,
+    'Earth Tones': EARTH_TONES,
+    'Ocean Breeze': OCEAN_BREEZE,
+    'Sunset Vibes': SUNSET_VIBES,
+    'Forest Dream': FOREST_DREAM,
+    'Neon Nights': NEON_NIGHTS,
+    'Desert Sunset': DESERT_SUNSET,
+    'Arctic Frost': ARCTIC_FROST,
+    'Midnight Ocean': MIDNIGHT_OCEAN,
+    'Autumn Breeze': AUTUMN_BREEZE,
+    'Spring Bloom': SPRING_BLOOM,
+    'Dusk Vibes': DUSK_VIBES,
+    'Winter Mint': WINTER_MINT,
+    'Summer Days': SUMMER_DAYS,
+    'Bold Retro': BOLD_RETRO,
+    'Cyber Punk': CYBER_PUNK,
+    'Vintage Books': VINTAGE_BOOKS,
+    'Tropical Fruit': TROPICAL_FRUIT,
+    'Monochrome Teal': MONOCHROME_TEAL,
+    'Lavender Fields': LAVENDER_FIELDS
 }
 
-# Base colors for C atoms in each chain
-CHAIN_BASE_COLORS = {
-    'A': '#FF9AA2',  # Rose (modern pastel)
-    'B': '#A2D2FF',  # Sky blue
-    'C': '#B5E48C',  # Mint green
-    'D': '#FFD6A5',  # Peach
-    'E': '#FDFFB6',  # Butter yellow
-    'F': '#D0BFFF',  # Lavender purple
-    'G': '#FFC6FF',  # Pink lavender
-    'H': '#BDE0FE',  # Baby blue
-}
+# Default to Modern Pastels
+CHAIN_BASE_COLORS = MODERN_PASTELS
 
 def create_selection_cards(selected_chains, selected_hetatm, chain_atoms, atom_colors, atom_sizes, chain_residues):
     """Create selection/rendering cards based on user selections."""
@@ -350,7 +374,9 @@ def get_chain_color(chain, atom_index):
 
 def get_atom_color(chain, atom):
     """Get color for an atom based on the chain's base color and atom type."""
-    base_color = CHAIN_BASE_COLORS.get(chain, CHAIN_BASE_COLORS['A'])
+    # Get the selected palette from session state or default to Modern Pastels
+    selected_palette = st.session_state.get('selected_palette', 'Modern Pastels')
+    base_color = AVAILABLE_PALETTES[selected_palette].get(chain, AVAILABLE_PALETTES['Modern Pastels']['A'])
     
     # Convert hex to RGB
     r = int(base_color[1:3], 16)
@@ -459,7 +485,6 @@ def get_chain_residues(atom_lines, selected_chains):
 
 def main():
     st.title("ILLUSTRATE Input File Generator")
-    st.write("Generate input files for the ILLUSTRATE molecular visualization program")
 
     # Initialize session state variables if they don't exist
     if 'preview_image' not in st.session_state:
@@ -481,7 +506,7 @@ def main():
     
     with form_col:
         # Create tabs for different sections
-        tab1, tab2, tab3, tab4 = st.tabs(["Input & Chains", "Coloring & Size", "View Settings", "Generated Input"])
+        tab1, tab2, tab3, tab4 = st.tabs(["Input & Chains", "Coloring & Size", "View Settings", "Illustrate Input"])
         
         with tab1:
             st.subheader("1. Input & Chains")
@@ -524,7 +549,7 @@ def main():
                     selected_chains = []
                     for i, chain in enumerate(sorted(chains)):
                         with chain_cols[i % 4]:
-                            if st.checkbox(f"Chain {chain}", key=f"chain_{chain}"):
+                            if st.checkbox(f"Chain {chain}", key=f"chain_{chain}", value=True):
                                 selected_chains.append(chain)
                     
                     # Show HETATM selection for selected chains
@@ -577,6 +602,25 @@ def main():
         with tab2:
             st.subheader("2. Coloring and Size Scheme")
             if uploaded_file is not None and atom_lines and selected_chains:
+                # Add palette selector
+                st.write("Select Color Palette")
+                selected_palette = st.selectbox(
+                    "Choose a color palette",
+                    options=list(AVAILABLE_PALETTES.keys()),
+                    key='selected_palette'
+                )
+                
+                # Display color preview
+                st.write("Palette Preview")
+                palette_cols = st.columns(8)
+                for i, (chain, color) in enumerate(AVAILABLE_PALETTES[selected_palette].items()):
+                    with palette_cols[i]:
+                        st.markdown(
+                            f'<div style="background-color: {color}; width: 30px; height: 30px; border-radius: 5px;"></div>',
+                            unsafe_allow_html=True
+                        )
+                        st.write(f"Chain {chain}")
+                
                 # Get unique atoms for each selected chain
                 chain_atoms = {}
                 for chain in selected_chains:
@@ -771,7 +815,6 @@ def main():
         
     # Add the new tab content for showing generated input
     with tab4:
-        st.subheader("Generated Input File")
         if uploaded_file is not None and st.session_state.pdb_file and st.session_state.output_file:
             try:
                 # Generate the input file content
@@ -789,7 +832,7 @@ def main():
                 
                 # Display the generated input file in a text area
                 st.text_area(
-                    "ILLUSTRATE Input File",
+                    "",
                     value=input_content,
                     height=400,
                     help="This is the generated input file that will be used by ILLUSTRATE",
@@ -864,17 +907,17 @@ def main():
                 input_file_path = st.session_state.output_file.replace('.ppm', '.inp')
                 with open(input_file_path, "w") as f:
                     f.write(input_content)
-                # st.info(f"Input file saved as: {os.path.abspath(input_file_path)}")
                 
                 # Generate preview
                 with st.spinner("Generating preview..."):
                     preview_image = generate_preview(input_file_path, st.session_state.pdb_file)
                     if preview_image:
+                        # Force a rerun to update the image
                         st.session_state.preview_image = preview_image
-                        # st.success("Preview generated successfully!")
-                        # st.info(f"Output PNG path: {os.path.abspath(preview_image)}")
+                        # st.experimental_rerun()  # REMOVE or comment out this line
                     else:
                         st.session_state.preview_image = None
+                        st.error("Failed to generate preview")
             except Exception as e:
                 st.error(f"An unexpected error occurred: {str(e)}")
                 st.session_state.preview_image = None
